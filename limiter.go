@@ -8,8 +8,8 @@ type BodySizeGasConfig struct {
 	ErrRequestEntityTooLarge *air.Error
 }
 
-// BodySizeGas returns a gas that is used to limit ervery request's body size
-// based on the bsgc.
+// BodySizeGas returns an `air.Gas` that is used to limit ervery request's body
+// size based on the bsgc.
 func BodySizeGas(bsgc BodySizeGasConfig) air.Gas {
 	if bsgc.ErrRequestEntityTooLarge == nil {
 		bsgc.ErrRequestEntityTooLarge = &air.Error{
