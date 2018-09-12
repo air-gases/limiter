@@ -1,7 +1,7 @@
 # Limiter
 
 A useful gas that used to limit every request for the web applications built
-using [Air](https://github.com/sheng/air).
+using [Air](https://github.com/aofei/air).
 
 ## Installation
 
@@ -25,7 +25,7 @@ package main
 
 import (
 	"github.com/air-gases/limiter"
-	"github.com/sheng/air"
+	"github.com/aofei/air"
 )
 
 func main() {

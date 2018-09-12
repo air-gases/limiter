@@ -1,6 +1,6 @@
 package limiter
 
-import "github.com/sheng/air"
+import "github.com/aofei/air"
 
 // BodySizeGasConfig is a set of configurations for the `BodySizeGas()`.
 type BodySizeGasConfig struct {
