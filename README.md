@@ -29,7 +29,7 @@ import (
 )
 
 func main() {
-	air.Gases = []air.Gas{
+	air.Pregases = []air.Gas{
 		limiter.BodySizeGas(limiter.BodySizeGasConfig{
 			MaxBytes: 1 << 20,
 		}),
