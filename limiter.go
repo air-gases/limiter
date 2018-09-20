@@ -16,7 +16,7 @@ type BodySizeGasConfig struct {
 // size based on the bsgc.
 func BodySizeGas(bsgc BodySizeGasConfig) air.Gas {
 	if bsgc.Error413 == nil {
-		bsgc.Error413 = errors.New("Request Entity Too Large")
+		bsgc.Error413 = errors.New("request entity too large")
 	}
 
 	return func(next air.Handler) air.Handler {
