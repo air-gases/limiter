@@ -35,7 +35,7 @@ func main() {
 		}),
 	}
 	air.GET("/", func(req *air.Request, res *air.Response) error {
-		return res.String("You are within the limits.")
+		return res.WriteString("You are within the limits.")
 	})
 	air.Serve()
 }
