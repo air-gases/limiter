@@ -29,15 +29,16 @@ import (
 )
 
 func main() {
-	air.Pregases = []air.Gas{
+	a := air.Default
+	a.Pregases = []air.Gas{
 		limiter.BodySizeGas(limiter.BodySizeGasConfig{
 			MaxBytes: 1 << 20,
 		}),
 	}
-	air.GET("/", func(req *air.Request, res *air.Response) error {
+	a.GET("/", func(req *air.Request, res *air.Response) error {
 		return res.WriteString("You are within the limits.")
 	})
-	air.Serve()
+	a.Serve()
 }
 ```
 
