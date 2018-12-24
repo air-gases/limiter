@@ -30,6 +30,7 @@ import (
 
 func main() {
 	a := air.Default
+	a.DebugMode = true
 	a.Pregases = []air.Gas{
 		limiter.BodySizeGas(limiter.BodySizeGasConfig{
 			MaxBytes: 1 << 20,
