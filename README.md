@@ -1,5 +1,7 @@
 # Limiter
 
+[![GoDoc](https://godoc.org/github.com/air-gases/limiter?status.svg)](https://godoc.org/github.com/air-gases/limiter)
+
 A useful gas that used to limit every request for the web applications built
 using [Air](https://github.com/aofei/air).
 
