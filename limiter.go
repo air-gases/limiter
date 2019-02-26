@@ -7,7 +7,7 @@ import (
 	"github.com/aofei/air"
 )
 
-// BodySizeGasConfig is a set of configurations for the `BodySizeGas()`.
+// BodySizeGasConfig is a set of configurations for the `BodySizeGas`.
 type BodySizeGasConfig struct {
 	MaxBytes                 int64
 	ErrRequestEntityTooLarge error
