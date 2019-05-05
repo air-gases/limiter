@@ -47,17 +47,17 @@ func main() {
 
 ## Community
 
-If you want to discuss this gas, or ask questions about it, simply post
-questions or ideas [here](https://github.com/air-gases/limiter/issues).
+If you want to discuss Limiter, or ask questions about it, simply post questions
+or ideas [here](https://github.com/air-gases/limiter/issues).
 
 ## Contributing
 
-If you want to help build this gas, simply follow
+If you want to help build Limiter, simply follow
 [this](https://github.com/air-gases/limiter/wiki/Contributing) to send pull
 requests [here](https://github.com/air-gases/limiter/pulls).
 
 ## License
 
-This gas is licensed under the Unlicense.
+This project is licensed under the Unlicense.
 
 License can be found [here](LICENSE).
