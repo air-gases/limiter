@@ -2,9 +2,13 @@ package limiter
 
 import (
 	"errors"
+	"net"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/aofei/air"
+	"github.com/patrickmn/go-cache"
 )
 
 // BodySizeGasConfig is a set of configurations for the `BodySizeGas`.
@@ -77,4 +81,76 @@ func (mbb *maxBytesBody) Read(b []byte) (n int, err error) {
 // Close implements the `io.Closer`.
 func (mbb *maxBytesBody) Close() error {
 	return nil
+}
+
+// RateGasConfig is a set of configurations for the `RateGas`.
+type RateGasConfig struct {
+	MaxRequests        int64
+	ResetInterval      time.Duration
+	ErrTooManyRequests error
+
+	counterCache *cache.Cache
+}
+
+// RateGas returns an `air.Gas` that is used to limit request's rate based on
+// the rgc.
+func RateGas(rgc RateGasConfig) air.Gas {
+	if rgc.ErrTooManyRequests == nil {
+		rgc.ErrTooManyRequests = errors.New(
+			http.StatusText(http.StatusTooManyRequests),
+		)
+	}
+
+	rgc.counterCache = cache.New(rgc.ResetInterval, time.Minute)
+
+	return func(next air.Handler) air.Handler {
+		return func(req *air.Request, res *air.Response) error {
+			if rgc.MaxRequests <= 0 || rgc.ResetInterval <= 0 {
+				return next(req, res)
+			}
+
+			ca := req.ClientAddress()
+			host, _, err := net.SplitHostPort(ca)
+			if err != nil {
+				host = ca
+			}
+
+			_, e, ok := rgc.counterCache.GetWithExpiration(host)
+			if !ok || e.Before(time.Now()) {
+				rgc.counterCache.SetDefault(host, int64(0))
+				e = time.Now().Add(rgc.ResetInterval)
+			}
+
+			count, err := rgc.counterCache.IncrementInt64(host, 1)
+			if err != nil {
+				return err
+			}
+
+			remaining := rgc.MaxRequests - count
+			reached := remaining < 0
+			if reached {
+				remaining = 0
+			}
+
+			res.Header.Set(
+				"X-RateLimit-Limit",
+				strconv.FormatInt(rgc.MaxRequests, 10),
+			)
+			res.Header.Set(
+				"X-RateLimit-Remaining",
+				strconv.FormatInt(remaining, 10),
+			)
+			res.Header.Set(
+				"X-RateLimit-Reset",
+				strconv.FormatInt(e.Unix(), 10),
+			)
+
+			if reached {
+				res.Status = http.StatusTooManyRequests
+				return rgc.ErrTooManyRequests
+			}
+
+			return next(req, res)
+		}
+	}
 }
