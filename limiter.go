@@ -87,6 +87,7 @@ func (mbb *maxBytesBody) Close() error {
 type RateGasConfig struct {
 	MaxRequests        int64
 	ResetInterval      time.Duration
+	UseClientAddress   bool
 	ErrTooManyRequests error
 
 	counterCache *cache.Cache
@@ -109,10 +110,16 @@ func RateGas(rgc RateGasConfig) air.Gas {
 				return next(req, res)
 			}
 
-			ca := req.ClientAddress()
-			host, _, err := net.SplitHostPort(ca)
+			address := ""
+			if rgc.UseClientAddress {
+				address = req.ClientAddress()
+			} else {
+				address = req.RemoteAddress()
+			}
+
+			host, _, err := net.SplitHostPort(address)
 			if err != nil {
-				host = ca
+				host = address
 			}
 
 			_, e, ok := rgc.counterCache.GetWithExpiration(host)
