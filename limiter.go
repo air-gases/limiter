@@ -5,7 +5,6 @@ import (
 	"net"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/aofei/air"
@@ -15,7 +14,6 @@ import (
 // BodySizeGasConfig is a set of configurations for the `BodySizeGas`.
 type BodySizeGasConfig struct {
 	MaxBytes                 int64
-	PathPrefixWhitelist      []string
 	ErrRequestEntityTooLarge error
 }
 
@@ -31,12 +29,6 @@ func BodySizeGas(bsgc BodySizeGasConfig) air.Gas {
 
 	return func(next air.Handler) air.Handler {
 		return func(req *air.Request, res *air.Response) error {
-			for _, pp := range bsgc.PathPrefixWhitelist {
-				if strings.HasPrefix(req.Path, pp) {
-					return next(req, res)
-				}
-			}
-
 			if req.ContentLength > bsgc.MaxBytes {
 				res.Status = http.StatusRequestEntityTooLarge
 				return bsgc.ErrRequestEntityTooLarge
