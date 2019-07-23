@@ -15,6 +15,8 @@ import (
 type BodySizeGasConfig struct {
 	MaxBytes                 int64
 	ErrRequestEntityTooLarge error
+
+	Skippable func(*air.Request, *air.Response) bool
 }
 
 // BodySizeGas returns an `air.Gas` that is used to limit ervery request's body
@@ -29,6 +31,10 @@ func BodySizeGas(bsgc BodySizeGasConfig) air.Gas {
 
 	return func(next air.Handler) air.Handler {
 		return func(req *air.Request, res *air.Response) error {
+			if bsgc.Skippable != nil && bsgc.Skippable(req, res) {
+				return next(req, res)
+			}
+
 			if req.ContentLength > bsgc.MaxBytes {
 				res.Status = http.StatusRequestEntityTooLarge
 				return bsgc.ErrRequestEntityTooLarge
@@ -90,6 +96,8 @@ type RateGasConfig struct {
 	UseClientAddress   bool
 	ErrTooManyRequests error
 
+	Skippable func(*air.Request, *air.Response) bool
+
 	counterCache *cache.Cache
 }
 
@@ -106,6 +114,10 @@ func RateGas(rgc RateGasConfig) air.Gas {
 
 	return func(next air.Handler) air.Handler {
 		return func(req *air.Request, res *air.Response) error {
+			if rgc.Skippable != nil && rgc.Skippable(req, res) {
+				return next(req, res)
+			}
+
 			if rgc.MaxRequests <= 0 || rgc.ResetInterval <= 0 {
 				return next(req, res)
 			}
