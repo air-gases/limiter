@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/aofei/air"
@@ -54,6 +55,8 @@ func BodySizeGas(bsgc BodySizeGasConfig) air.Gas {
 // maxBytesReader is similar to the `io.LimitReader` but is intended for
 // limiting the size of incoming request bodies.
 type maxBytesBody struct {
+	sync.Mutex
+
 	bsgc BodySizeGasConfig
 	req  *air.Request
 	res  *air.Response
@@ -62,6 +65,9 @@ type maxBytesBody struct {
 
 // Read implements the `io.Reader`.
 func (mbb *maxBytesBody) Read(b []byte) (n int, err error) {
+	mbb.Lock()
+	defer mbb.Unlock()
+
 	if rl := mbb.bsgc.MaxBytes - mbb.cl; rl > 0 {
 		if int64(len(b)) > rl {
 			b = b[:rl]
