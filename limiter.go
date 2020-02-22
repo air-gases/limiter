@@ -2,7 +2,6 @@ package limiter
 
 import (
 	"errors"
-	"net"
 	"net/http"
 	"strconv"
 	"sync"
@@ -128,16 +127,11 @@ func RateGas(rgc RateGasConfig) air.Gas {
 				return next(req, res)
 			}
 
-			address := ""
+			host := ""
 			if rgc.UseClientAddress {
-				address = req.ClientAddress()
+				host = req.ClientHost()
 			} else {
-				address = req.RemoteAddress()
-			}
-
-			host, _, err := net.SplitHostPort(address)
-			if err != nil {
-				host = address
+				host = req.RemoteHost()
 			}
 
 			_, e, ok := rgc.counterCache.GetWithExpiration(host)
