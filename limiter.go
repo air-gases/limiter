@@ -91,7 +91,7 @@ func (mbb *maxBytesBody) Read(b []byte) (n int, err error) {
 
 // Close implements the `io.Closer`.
 func (mbb *maxBytesBody) Close() error {
-	return nil
+	return mbb.req.Body.Close()
 }
 
 // RateGasConfig is a set of configurations for the `RateGas`.
