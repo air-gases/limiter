@@ -2,6 +2,7 @@ package limiter
 
 import (
 	"errors"
+	"io"
 	"net/http"
 	"strconv"
 	"sync"
@@ -41,9 +42,9 @@ func BodySizeGas(bsgc BodySizeGasConfig) air.Gas {
 			}
 
 			req.Body = &maxBytesBody{
-				bsgc: bsgc,
-				req:  req,
-				res:  res,
+				bsgc:    bsgc,
+				reqBody: req.Body,
+				res:     res,
 			}
 
 			return next(req, res)
@@ -56,10 +57,10 @@ func BodySizeGas(bsgc BodySizeGasConfig) air.Gas {
 type maxBytesBody struct {
 	sync.Mutex
 
-	bsgc BodySizeGasConfig
-	req  *air.Request
-	res  *air.Response
-	cl   int64
+	bsgc    BodySizeGasConfig
+	reqBody io.ReadCloser
+	res     *air.Response
+	cl      int64
 }
 
 // Read implements the `io.Reader`.
@@ -72,7 +73,7 @@ func (mbb *maxBytesBody) Read(b []byte) (n int, err error) {
 			b = b[:rl]
 		}
 
-		n, err = mbb.req.Body.Read(b)
+		n, err = mbb.reqBody.Read(b)
 	} else {
 		return 0, mbb.bsgc.ErrRequestEntityTooLarge
 	}
@@ -91,7 +92,7 @@ func (mbb *maxBytesBody) Read(b []byte) (n int, err error) {
 
 // Close implements the `io.Closer`.
 func (mbb *maxBytesBody) Close() error {
-	return mbb.req.Body.Close()
+	return mbb.reqBody.Close()
 }
 
 // RateGasConfig is a set of configurations for the `RateGas`.
